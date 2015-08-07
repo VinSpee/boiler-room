@@ -3,6 +3,8 @@
 
 :root {
 	--Bg-color: var(--color-white);
+
+	--Button-background: var(--color-blue);
 }
 .browserupgrade {
 	margin: 0.2em 0;
