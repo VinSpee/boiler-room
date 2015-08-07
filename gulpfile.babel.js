@@ -2,93 +2,18 @@ import gulp from 'gulp';
 import gulpLoadPlugins from 'gulp-load-plugins';
 import browserSync from 'browser-sync';
 import del from 'del';
-import bemLinter from 'postcss-bem-linter';
 
 const $ = gulpLoadPlugins();
 const reload = browserSync.reload;
 
-import stylelint from 'stylelint';
-import reporter from 'postcss-reporter';
-import suitcssConfig from 'stylelint-config-suitcss';
-import merge from 'object-merge';
 const CSS_NAMESPACE = require('./package.json').config.namespace;
-const CSS_CONFIG = merge({
-	'rules': {
-		'indentation': [2, 'tab']
-	},
-	suitcssConfig
-});
-gulp.task('lint:css', () => {
-	return gulp.src(['app/styles/**/*.css', './web_modules/**/*.css'])
-	.pipe($.postcss([
-		stylelint(CSS_CONFIG),
-		require('postcss-nested')(),
-		bemLinter('suit', { namespace: CSS_NAMESPACE }),
-		reporter()
-	]));
-});
-
-gulp.task('styles', ['lint:css'], () => {
-	return gulp.src('app/styles/*.css')
-	.pipe($.plumber())
-	.pipe($.sourcemaps.init())
-	.pipe($.cssnext({
-		compress: true,
-		plugins: [
-			require('postcss-font-magician')({
-				hosted: './app/fonts'
-			}),
-			require('postcss-nested')
-		],
-		sourcemap: true
-	}))
-	.pipe($.sourcemaps.write())
-	.pipe(gulp.dest('.tmp/styles'))
-	.pipe(reload({stream: true}));
-});
-
-gulp.task('lint:js', () => {
-	return gulp.src(['app/scripts/**/*.js'])
-	.pipe(reload({stream: true, once: true}))
-	.pipe($.eslint())
-	.pipe($.eslint.format())
-	.pipe($.if(!browserSync.active, $.eslint.failAfterError()));
-});
-
-import browserify from 'browserify';
-import source from 'vinyl-source-stream';
-import buffer from 'vinyl-buffer';
-import babelify from 'babelify';
-gulp.task('scripts', ['lint:js'], () => {
-	browserify({
-		entries: './app/scripts/main.js',
-		debug: true
-	})
-	.transform(babelify)
-	.bundle()
-	.pipe(source('app.js'))
-	.pipe($.plumber())
-	.pipe(buffer())
-	.pipe($.sourcemaps.init({ loadMaps: true }))
-	.pipe($.sourcemaps.write())
-	.pipe(gulp.dest('.tmp/scripts'))
-	.pipe(reload({stream: true}));
-});
-
-gulp.task('modernizr', () => {
-	return gulp.src(['app/scripts/**/*.js'])
-	.pipe($.modernizr({
-		options: [
-			'setClasses',
-			'addTest',
-			'html5printshiv',
-			'testProp',
-			'fnBind'
-		]
-	}))
-	.pipe(gulp.dest('.tmp/scripts'))
-	.pipe(gulp.dest('dist/scripts'));
-});
+//require('./lib/task')(gulp, 'name', [deps], [in_files], 'out-path', {opts});
+require('./lib/lint-styles')(gulp, 'lint:styles', null, ['app/styles/**/*.css', './web_modules/**/*.css'], null, {namespace: CSS_NAMESPACE});
+require('./lib/styles')(gulp, 'styles', ['lint:styles'], 'app/styles/*.css', '.tmp/styles', null);
+require('./lib/lint-scripts')(gulp, 'lint:scripts', null, 'app/scripts/**/*.js', null, null);
+require('./lib/scripts')(gulp, 'scripts', ['lint:scripts'], 'app/scripts/main.js', '.tmp/scripts', null);
+require('./lib/modernizr')(gulp, 'modernizr', null, 'app/scripts/**/*.js', '.tmp/scripts', null);
+require('./lib/sprites')(gulp, 'sprites', null, 'app/images/icons/*.svg', '.tmp/images', null);
 
 gulp.task('html', ['styles', 'modernizr', 'scripts'], () => {
 	const assets = $.useref.assets({searchPath: ['.tmp', 'app', '.']});
@@ -118,36 +43,6 @@ gulp.task('images', () => {
 	.pipe(gulp.dest('dist/images'));
 });
 
-gulp.task('sprites', () => {
-	const config = {
-		log: 'verbose',
-		shape: {
-			transform: [
-				{
-					svgo: {
-						plugins: [
-							{ removeDimensions: true },
-							{ removeAttrs: { attrs: '(fill|stroke)' } }
-						]
-					}
-				}
-			]
-		},
-		mode: {
-			symbol: {
-				dest: '.',
-				prefix: '.icon-%s',
-				sprite: './icons.svg'
-			}
-		}
-	};
-	return gulp.src('app/images/icons/*.svg')
-	.pipe($.plumber())
-	.pipe($.svgSprite(config))
-	.pipe(gulp.dest('.tmp/images/'))
-	.pipe(gulp.dest('dist/icons'));
-});
-
 gulp.task('fonts', () => {
 	return gulp.src('app/fonts/**/*')
 	.pipe(gulp.dest('.tmp/fonts'))
@@ -165,7 +60,7 @@ gulp.task('extras', () => {
 
 gulp.task('clean', del.bind(null, ['.tmp', 'dist']));
 
-gulp.task('serve', ['html', 'fonts'], () => {
+gulp.task('serve', ['html', 'sprites', 'fonts'], () => {
 	browserSync({
 		notify: true,
 		port: 9000,
@@ -175,7 +70,7 @@ gulp.task('serve', ['html', 'fonts'], () => {
 	});
 
 	gulp.watch([
-		'.app/*.html',
+		'app/*.html',
 		'.tmp/images/**/*',
 		'.tmp/scripts/**/*.js',
 		'.tmp/fonts/**/*'
@@ -210,7 +105,7 @@ gulp.task('serve:test', () => {
 	gulp.watch('test/spec/**/*.js', ['lint:test']);
 });
 
-gulp.task('build', ['html', 'images', 'fonts', 'extras'], () => {
+gulp.task('build', ['html', 'sprites', 'images', 'fonts', 'extras'], () => {
 	return gulp.src('dist/**/*').pipe($.size({title: 'build', gzip: true}));
 });
 

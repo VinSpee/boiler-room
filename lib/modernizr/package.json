@@ -1,0 +1,14 @@
+{
+  "name": "modernizr",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Vince Speelman",
+  "license": "ISC",
+  "dependencies": {
+    "gulp-modernizr": "0.0.0"
+  }
+}

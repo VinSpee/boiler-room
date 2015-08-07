@@ -1,0 +1,16 @@
+{
+  "name": "lint-scripts",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Vince Speelman",
+  "license": "ISC",
+  "dependencies": {
+    "browser-sync": "^2.8.2",
+    "gulp-eslint": "^1.0.0",
+    "gulp-if": "^1.2.5"
+  }
+}
