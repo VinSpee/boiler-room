@@ -1,7 +1,7 @@
 import './libs';
 import * as constants from './constants';
 
-let logStart = (text) => {
+const logStart = (text) => {
 	console.log(text);
 };
 
