@@ -61,5 +61,8 @@
   "bugs": {
     "url": "https://github.com/VinSpee/boiler-room/issues"
   },
-  "homepage": "https://github.com/VinSpee/boiler-room#readme"
+  "homepage": "https://github.com/VinSpee/boiler-room#readme",
+  "devDependencies": {
+    "postcss-svg": "^1.0.1"
+  }
 }

@@ -9,7 +9,7 @@ const reload = browserSync.reload;
 const CSS_NAMESPACE = require('./package.json').config.namespace;
 //require('./lib/task')(gulp, 'name', [deps], [in_files], 'out-path', {opts});
 require('./lib/lint-styles')(gulp, 'lint:styles', null, ['app/styles/**/*.css', './web_modules/**/*.css'], null, {namespace: CSS_NAMESPACE});
-require('./lib/styles')(gulp, 'styles', ['lint:styles'], 'app/styles/*.css', '.tmp/styles', null, reload);
+require('./lib/styles')(gulp, 'styles', ['lint:styles'], 'app/styles/*.css', '.tmp/styles', './app/images/icons', reload);
 require('./lib/lint-scripts')(gulp, 'lint:scripts', null, 'app/scripts/**/*.js', null, null, reload);
 require('./lib/scripts')(gulp, 'scripts', ['lint:scripts'], 'app/scripts/main.js', '.tmp/scripts', null, reload);
 require('./lib/modernizr')(gulp, 'modernizr', null, 'app/scripts/**/*.js', '.tmp/scripts', null, reload);
